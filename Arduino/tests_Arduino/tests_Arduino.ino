@@ -12,7 +12,7 @@ byte trig2_state = LOW;
 int data1;
 int data2;
 int data3;
-int freq = 50;                  // [ms]
+int freq = 2000;                  // [ms]
 
 unsigned long curr_ms = 0;
 unsigned long prev_ms = 0;
@@ -48,7 +48,7 @@ void loop(){
 }
 
 void write_states(){
-  Serial.println(trig2_state);
+  //Serial.println(trig2_state);
   digitalWrite(trig2, trig2_state);
 }
 
@@ -78,12 +78,14 @@ void toggle_trig2(){
       if (curr_ms - prev_ms >= freq/2){       // switch high/low every 50ms   
         // read and print once per clock cycle
         trig2_state = HIGH;
+        Serial.println("HIGH");
         prev_ms = curr_ms;
       }
 
     case HIGH:
       if (curr_ms - prev_ms >= freq/2){   
         trig2_state = LOW;
+        Serial.println("LOW");
         prev_ms = curr_ms;
       }
   }

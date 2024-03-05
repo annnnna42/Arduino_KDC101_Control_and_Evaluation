@@ -123,10 +123,12 @@ def move_stage_thread():
         # Move the stage to position 0
             #stage.move_to(0*scale_pos)
             
-            stage.move_to(0*scale_pos)
+            stage.move_to(20*scale_pos)
+            stage.wait_move()
+            stage.move_to(10*scale_pos)
+            stage.wait_move()
 
-            print("Stage moved to position 0")
-
+            print(f"Stage moved to position: {stage.get_position()/scale_pos}")
         # Release the lock after accessing the device
 
 

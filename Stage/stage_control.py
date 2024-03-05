@@ -3,9 +3,7 @@ import numpy as np
 from datetime import datetime
 import time
 
-
 # write functions!!! 
-
 
 def return_trig1_state():
     status = stage.get_status()

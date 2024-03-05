@@ -28,12 +28,13 @@ with Thorlabs.KinesisMotor("27267730") as stage:
     while(True):
         #print(stage.get_kcube_trigio_parameters().trig1_pol)
         status = stage.get_status()
+        print(status)
         #print(status)
         trig1_state ="digio1" in status
         trig2_state ="digio2" in status
         print(trig1_state)
-        #print(trig2_state)
-        time.sleep(0.05)
+        print(trig2_state)
+        time.sleep(1)
             #print(stage.get_status())
 
     

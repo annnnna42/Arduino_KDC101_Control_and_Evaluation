@@ -2,6 +2,7 @@ from pylablib.devices import Thorlabs
 import numpy as np  
 from datetime import datetime
 import time
+import asynco
 
 # write functions!!! 
 
@@ -30,9 +31,11 @@ def wait_and_sleep():
     stage.wait_move()                                           
     time.sleep(1) 
 
+async def wait_async():
+
+
 def get_rising_edge_trig2():                        # get rising edge
     global trig2_state_after
-
     trig2_state_before = return_trig2_state()
 
     if trig2_state_before:                                  # trig1 True
@@ -51,9 +54,7 @@ with Thorlabs.KinesisMotor("27267730") as stage:
     stage.setup_kcube_trigio(trig1_mode='in_gpio', trig1_pol=True, trig2_mode='in_gpio', trig2_pol=True)
     trig2_state_after = False 
 
-
     stage_home()
-
     wait_for_init_trigger()
 
     if (return_trig1_state()):
@@ -68,13 +69,15 @@ with Thorlabs.KinesisMotor("27267730") as stage:
 
             while stage.is_moving():                                    # check ob das funktionier
                 if (get_rising_edge_trig2()):                              # hier abfrage ob rising edge
+
                     position = stage.get_position()/scale_pos
                     print(position)
                     trigger_positions.append([datetime.now()-start_time, "fw", position])   
-                time.sleep(0.07)
+                #time.sleep(0.07)
 
-            wait_and_sleep()                                          
-                                                           
+            t1 = time.time()
+            while(time.time()-t1 <= 2):
+                                                                           
             # backward movement
             stage.move_to(0*scale_pos)
 
@@ -83,7 +86,7 @@ with Thorlabs.KinesisMotor("27267730") as stage:
                     position = stage.get_position()/scale_pos
                     print(position)
                     trigger_positions.append([datetime.now()-start_time, "bw", position])
-                time.sleep(0.07)
+                #time.sleep(0.07)
 
             wait_and_sleep()
 

@@ -13,15 +13,17 @@ with Thorlabs.KinesisMotor("27267730") as stage:
     scale_pos = 34554.97192
     trigger_positions = []
 
-    stage.setup_kcube_trigio(trig1_mode = 'in_gpio', trig2_mode='in_gpio')
+   # stage.setup_kcube_trigio(trig1_mode = 'in_gpio', trig1_pol=True, trig2_mode='in_gpio', trig2_pol=True)
+    stage.setup_kcube_trigio(trig2_mode='in_gpio', trig2_pol=True)
     trig2_state_after = False 
 
     print("Start run")
     while True:
         status = stage.get_status()
         print(status)
-        time.sleep(0.7)
+        time.sleep(0.3)
         trig2_state = "digio2" in status
+        print(trig2_state)
         #print(trig2_state)
         #print(return_trig2_state())
     # stage.move_to(40*scale_pos)

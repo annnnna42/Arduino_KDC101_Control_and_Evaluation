@@ -3,6 +3,7 @@ import numpy as np
 from datetime import datetime
 import time
 
+
 def return_trig2_state():
     status = stage.get_status()
     trig2_state = "digio2" in status
@@ -47,45 +48,58 @@ def wait_for_init_edge():
     print(get_rising_edge_trig2())
     while True:
         state = return_trig2_state()
-        print(state)
+        #print(state)
         if state:
             return True
             
 # connect to the devices
 with Thorlabs.KinesisMotor("27267730") as stage:
     scale_pos = 34554.97192
+
+    start_mm = 35.4*scale_pos
+    end_mm = 45.4*scale_pos
+
     trigger_positions = []
 
-    stage.setup_kcube_trigio(trig1_mode='in_gpio', trig1_pol=True, trig2_mode='in_gpio', trig2_pol=True)
+    stage.setup_kcube_trigio(trig2_mode='in_gpio', trig2_pol=True)
     trig2_state_after = False 
 
     stage_home()
-    stage.move_to(35.4*scale_pos)
-    stage.wait_move()
+
     time.sleep(2)
 
-    
     wait_for_init_edge()
-    print("Start Stage")
+    print("Start")
     start_time = datetime.now()
 
-    for i in range(1):
+    stage.move_to(start_mm)
+    while stage.is_moving():  
+            #print(get_rising_edge_trig2())                                  # check ob das funktionier
+            if (get_rising_edge_trig2()):                              # hier abfrage ob rising edge
+                trigger_positions = get_position_stage("fw") 
+    
+    wait_async(5, "at end")
+
+    for i in range(3):
          # forward movement           
-        stage.move_to(45.4*scale_pos)
+        stage.move_to(start_mm)
         while stage.is_moving():  
-            print(get_rising_edge_trig2())                                  # check ob das funktionier
+            #print(get_rising_edge_trig2())                                  # check ob das funktionier
             if (get_rising_edge_trig2()):                              # hier abfrage ob rising edge
                 trigger_positions = get_position_stage("fw") 
 
+        #print("wait at end")
         wait_async(5, "at end")
                                                        
         # backward movement
-        stage.move_to(35.4*scale_pos)
+        stage.move_to(end_mm)
         while stage.is_moving():
             if (get_rising_edge_trig2()):
                 trigger_positions = get_position_stage("bw")
 
         wait_async(2, "at start")
+        #print("wait at start")
+
 
     # hier wäre es nice ein trig1 out zu senden aka END
         

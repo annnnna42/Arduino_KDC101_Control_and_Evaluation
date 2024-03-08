@@ -16,8 +16,8 @@ int const LED_REED_back_2 = 36;
 int const LED_LASER = 37;
 int const LED_PD_inside = 38;
 
-int const trig1 = 53;
-int const trig2 = 48;
+int const trig1 = 51;
+int const trig2 = 52;
 
 //Variables
 int val_REED_front_0;
@@ -34,8 +34,8 @@ unsigned long curr_ms = 0;
 unsigned long prev_ms_1 = 0;
 unsigned long prev_ms_2 = 0;
 
-int freq = 1000;
-int wait_time = 1000;
+int freq = 400;
+int wait_time = 20000;
 
 void setup(){
  Serial.begin(9600);
@@ -62,22 +62,21 @@ void setup(){
 
 
   digitalWrite(trig2, LOW);
-  //Serial.println("Wait 15s to setup stage");
   delay(wait_time);
   //Serial.println("Done, send init pulse");
   digitalWrite(trig2, HIGH);
   //Serial.println("True");
-  delay(100);
+  delay(freq/2);
   digitalWrite(trig2, LOW);
   //Serial.println("False");
-  delay(500);
+  delay(freq/2);
 
 
 }
 void loop(){
   
   curr_ms = millis();
-  toggle_trig1();
+  //toggle_trig1();
   toggle_trig2();
   write_states();   
   //read_and_print_sensors();
@@ -96,10 +95,10 @@ void loop(){
 }
 
 void write_states(){
-  Serial.print(trig1_state);
-  Serial.print(" ");
-  Serial.println(trig2_state);
-  digitalWrite(trig1, trig1_state);
+  //Serial.print(trig1_state);
+  //Serial.print(" ");
+  //Serial.println(trig2_state);
+  //digitalWrite(trig1, trig1_state);
   digitalWrite(trig2, trig2_state);
 }
 

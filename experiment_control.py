@@ -5,52 +5,8 @@ import time
 import serial
 import sys
 
-# arg1 = sys.argv[1]
-# arg2 = sys.argv[2]
-
-# def return_trig2_state():
-#     status = stage.get_status()
-#     trig2_state = "digio2" in status
-#     return trig2_state
-            
-# # connect to the devices
-# with Thorlabs.KinesisMotor("27267730") as stage:
-#     scale_pos = 34554.97192
-#     trigger_positions = []
-
-#    # stage.setup_kcube_trigio(trig1_mode = 'in_gpio', trig1_pol=True, trig2_mode='in_gpio', trig2_pol=True)
-#     stage.setup_kcube_trigio(trig1_mode='out_gpio', trig1_pol = True)
-
-
-#     print("Toggle output")
-#     while True:
-#        stage.send_comm(0x0213, 0xFF)
-#        time.sleep(1)
-#        stage.send_comm(0x0213, 0x00)
-#        time.sleep(1)
-#     print("End")
-#     stage.close()
-
-
-# ### test two scripts (two )
-# #script b
-# import time
-# import os
-
-# # Simulate Script B running for 5 seconds
-# with open("script_b_running.txt", "w") as f:
-#     # Do something in Script B
-#     time.sleep(7)
-
-# print("sleep again")
-# time.sleep(5)
-# print("Stop")
-
-# # Delete the file to signal that Script B has stopped
-# os.remove("script_b_running.txt")
-
 arg = sys.argv[1]
-
+rounds = sys.argv[2]
 
 def get_rising_edge_trig2():                        # get rising edge
     global trig2_state_after
@@ -78,20 +34,15 @@ def get_position_stage(direction):
     global start_time
 
     position = stage.get_position()/scale_pos
-    #print(position)
 
     if direction == "fw":
-        #trigger_positions.append([datetime.now()-start_time, position, None, None])
-        trigger_positions.append([position, None, None])
+        position_data.append([position, None, None])
     elif direction == "bw":
-        #trigger_positions.append([datetime.now()-start_time, None, position, None])
-        trigger_positions.append([None, position, None])
+        position_data.append([None, position, None])
     else:
-        #trigger_positions.append([datetime.now()-start_time, None, None, position])
-        trigger_positions.append([None, None, position])
-
+        position_data.append([None, None, position])
     
-    return trigger_positions
+    return position_data
 
 def ser_config():
     arduino_port = "COM3"
@@ -108,7 +59,6 @@ def stage_config():
 def get_serial():
     getData=ser.readline().decode('utf-8')
     data=getData[0:][:-2]  
-    data.split(",") 
     return data
 
 
@@ -131,34 +81,36 @@ with Thorlabs.KinesisMotor("27267730") as stage:
     time.sleep(3)
     print("Start")
 
-    for i in range(5):
-        trigger_positions = []
-        sensor_data = []
+    for i in range(rounds):
+        position_data = []
+        serial_data = []
 
         print(f"Round: {i}")
 
         stage.move_to(end_mm)        
         while stage.is_moving():  
             if (get_rising_edge_trig2()): 
-                trigger_positions = get_position_stage("fw") 
-                getData=ser.readline().decode('utf-8')
-                data=getData[0:][:-2]            
-                sensor_data.append(data.split(","))
+                position_data = get_position_stage("fw") 
+                # getData=ser.readline().decode('utf-8')
+                # data=getData[0:][:-2]   
+                data = get_serial()         
+                serial_data.append(data.split(","))
 
         time.sleep(2)
                                                                        
         stage.move_to(start_mm)
         while stage.is_moving():
             if (get_rising_edge_trig2()):
-                trigger_positions = get_position_stage("bw")
-                getData=ser.readline().decode('utf-8')
-                data=getData[0:][:-2]            
-                sensor_data.append(data.split(","))
+                position_data = get_position_stage("bw")
+                # getData=ser.readline().decode('utf-8')
+                # data=getData[0:][:-2]
+                data = get_serial()                     
+                serial_data.append(data.split(","))
 
         time.sleep(2)
 
-        position_matrix.append(trigger_positions)
-        serial_matrix.append(sensor_data)
+        position_matrix.append(position_data)
+        serial_matrix.append(serial_data)
 
     with open(file_name_arduino, "w") as fa:
         fa.write(str(serial_matrix))

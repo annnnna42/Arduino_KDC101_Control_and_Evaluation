@@ -34,8 +34,8 @@ unsigned long curr_ms = 0;
 unsigned long prev_ms_1 = 0;
 unsigned long prev_ms_2 = 0;
 
-int freq = 400;
-int wait_time = 20000;
+int freq = 100;
+int wait_time = 5000;
 
 void setup(){
  Serial.begin(9600);
@@ -79,6 +79,7 @@ void loop(){
   //toggle_trig1();
   toggle_trig2();
   write_states();   
+  //Serial.println(trig2_state);
   //read_and_print_sensors();
   
 /*
@@ -100,6 +101,7 @@ void write_states(){
   //Serial.println(trig2_state);
   //digitalWrite(trig1, trig1_state);
   digitalWrite(trig2, trig2_state);
+
 }
 
 void toggle_trig1(){

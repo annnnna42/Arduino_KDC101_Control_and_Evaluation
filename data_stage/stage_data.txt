@@ -1,1 +1,0 @@
-[[datetime.timedelta(microseconds=47772), 'fw', 0.0006366667017103452]]

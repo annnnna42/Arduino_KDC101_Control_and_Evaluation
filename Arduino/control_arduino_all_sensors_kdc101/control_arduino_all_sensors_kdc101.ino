@@ -34,7 +34,7 @@ unsigned long curr_ms = 0;
 unsigned long prev_ms_1 = 0;
 unsigned long prev_ms_2 = 0;
 
-int freq = 100;
+int freq = 300;
 int wait_time = 5000;
 
 void setup(){
@@ -67,7 +67,7 @@ void setup(){
   digitalWrite(trig2, HIGH);
   //Serial.println("True");
   delay(freq/2);
-  digitalWrite(trig2, LOW);
+  //digitalWrite(trig2, LOW);
   //Serial.println("False");
   delay(freq/2);
 

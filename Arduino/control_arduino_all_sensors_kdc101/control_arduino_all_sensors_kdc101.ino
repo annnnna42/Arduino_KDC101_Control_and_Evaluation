@@ -6,7 +6,7 @@ int const REED_front_1 = A3;
 int const REED_back_0 = A4;
 int const REED_back_1 = A5;
 int const REED_back_2 = A6;
-int const PD_inside = A7;
+int const PD_inside = A10;
 
 int const LED_REED_front_0 = 32;
 int const LED_REED_front_1 = 33;
@@ -34,8 +34,8 @@ unsigned long curr_ms = 0;
 unsigned long prev_ms_1 = 0;
 unsigned long prev_ms_2 = 0;
 
-int freq = 300;
-int wait_time = 5000;
+int freq = 100;
+int wait_time = 1000;
 
 void setup(){
  Serial.begin(9600);
@@ -57,20 +57,12 @@ void setup(){
   pinMode(trig1, OUTPUT);
   pinMode(trig2, OUTPUT);
 
-// der Teil war für die Kommunikation und ramping up mit Stage gedacht
-//0.1s True, polling for get_position alle 1s
 
 
   digitalWrite(trig2, LOW);
   delay(wait_time);
-  //Serial.println("Done, send init pulse");
   digitalWrite(trig2, HIGH);
-  //Serial.println("True");
   delay(freq/2);
-  //digitalWrite(trig2, LOW);
-  //Serial.println("False");
-  delay(freq/2);
-
 
 }
 void loop(){
@@ -79,29 +71,12 @@ void loop(){
   //toggle_trig1();
   toggle_trig2();
   write_states();   
-  //Serial.println(trig2_state);
-  //read_and_print_sensors();
-  
-/*
-  digitalWrite(trig1, HIGH);
-  Serial.println("True");
-  delay(100);
-  digitalWrite(trig1, LOW);
-  Serial.println("False");
-  delay(1000);
-
-  delay(CLK);
-*/
 
 }
 
 void write_states(){
-  //Serial.print(trig1_state);
-  //Serial.print(" ");
-  //Serial.println(trig2_state);
   //digitalWrite(trig1, trig1_state);
   digitalWrite(trig2, trig2_state);
-
 }
 
 void toggle_trig1(){
@@ -110,15 +85,12 @@ void toggle_trig1(){
       if (curr_ms - prev_ms_1 >= freq/2){       // switch high/low every 50ms   
         // read and print once per clock cycle
         trig1_state = HIGH;
-        //read_and_print_sensors();
-        //Serial.println("HIGH");
         prev_ms_1 = curr_ms;
       }
 
     case HIGH:
       if (curr_ms - prev_ms_1 >= freq/2){   
         trig1_state = LOW;
-        //Serial.println("LOW");
         prev_ms_1 = curr_ms;
       }
   }
@@ -131,21 +103,21 @@ void toggle_trig2(){
         // read and print once per clock cycle
         trig2_state = HIGH;
         read_and_print_sensors();
-        //Serial.println("HIGH");
         prev_ms_2 = curr_ms;
       }
 
     case HIGH:
       if (curr_ms - prev_ms_2>= freq/2){   
         trig2_state = LOW;
-        //Serial.println("LOW");
         prev_ms_2 = curr_ms;
       }
   }
 }
 
-
-
+float volt(int sensorValue){
+  float voltage = sensorValue * (5.0/1023.0);
+  return voltage;
+}
 
 void read_and_print_sensors(){
   val_REED_front_0 = analogRead(REED_front_0);
@@ -163,9 +135,9 @@ void read_and_print_sensors(){
   Serial.print(",");
   Serial.print(val_REED_back_1);
   Serial.print(",");
-  Serial.println(val_REED_back_2);
-  //Serial.print(",");
-  //Serial.println(val_PD_inside);
+  Serial.print(val_REED_back_2);
+  Serial.print(",");
+  Serial.println(val_PD_inside);
 }
 
 

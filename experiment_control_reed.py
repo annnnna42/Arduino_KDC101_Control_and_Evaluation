@@ -57,7 +57,7 @@ def ser_config():
 
 def stage_config():
     scale_pos = 34554.97192
-    start_mm = 35.4*scale_pos
+    start_mm = 37.4*scale_pos
     end_mm = 45.4*scale_pos
     return scale_pos, start_mm, end_mm
 
@@ -83,7 +83,7 @@ with Thorlabs.KinesisMotor("27267730") as stage:
     start_time = datetime.now()
 
     print("Sleep")
-    time.sleep(3)
+    time.sleep(1)
     print("Start")
 
 
@@ -96,24 +96,24 @@ with Thorlabs.KinesisMotor("27267730") as stage:
         stage.move_to(end_mm)        
         while stage.is_moving():  
             if (get_rising_edge_trig2()): 
-                print("rising edge")
+                #print("rising edge")
                 position_data = get_position_stage("fw") 
                 getData=ser.readline().decode('utf-8')
                 data=getData[0:][:-2]   
                 serial_data.append(data.split(","))
 
-        wait_async(3,"at end")
+        wait_async(1,"at end")
                                                                        
         stage.move_to(start_mm)
         while stage.is_moving():
             if (get_rising_edge_trig2()):
-                print("rising edge")
+                #print("rising edge")
                 position_data = get_position_stage("bw")
                 getData=ser.readline().decode('utf-8')
                 data=getData[0:][:-2]
                 serial_data.append(data.split(","))
 
-        wait_async(3,"at start")
+        wait_async(1,"at start")
 
         position_matrix.append(position_data)
         serial_matrix.append(serial_data)

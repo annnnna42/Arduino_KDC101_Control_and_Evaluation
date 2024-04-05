@@ -72,6 +72,7 @@ with Thorlabs.KinesisMotor("27267730") as stage:
     with open("script_running.txt", "w") as f:
         time.sleep(0.5)
 
+    
     scale_pos = 34554.97192
     start_mm = 35.4*scale_pos
     end_mm = 45.4*scale_pos

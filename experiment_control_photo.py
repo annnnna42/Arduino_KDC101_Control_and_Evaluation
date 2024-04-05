@@ -33,6 +33,7 @@ def wait_async(timeout, direction):
             get_position_stage(direction)
             getData=ser.readline().decode('utf-8')
             data=getData[0:][:-2]   
+            print(data)
             serial_data.append(data.split(","))
 
 def get_position_stage(direction):
@@ -53,14 +54,14 @@ def get_position_stage(direction):
 
 def ser_config():
     arduino_port = "COM3"
-    baud = 9600
+    baud = 115200
     ser = serial.Serial(arduino_port, baud)
     return ser
 
 def stage_config():
     scale_pos = 34554.97192
-    start_mm = 0*scale_pos
-    end_mm = 44.2*scale_pos
+    start_mm = 17*scale_pos
+    end_mm = 41.2*scale_pos
     acc = 4.5*scale_pos
     maxv = 2.4*scale_pos
     return scale_pos, start_mm, end_mm, acc, maxv
@@ -90,10 +91,11 @@ with Thorlabs.KinesisMotor("27267730") as stage:
 
     print("Sleep")
     time.sleep(1)
+    start_time = time.time()
     print("Start")
 
 
-    for i in range(10):
+    for i in range(200):
         position_data = []
         serial_data = []
 
@@ -131,6 +133,10 @@ with Thorlabs.KinesisMotor("27267730") as stage:
 
     with open(file_name_stage, "w") as fs:
         fs.write(str(position_matrix))
+    end_time = time.time()
 
+    print("Time needed: ")
+    print(start_time-end_time)
     print("written to files")
+    
     stage.close()

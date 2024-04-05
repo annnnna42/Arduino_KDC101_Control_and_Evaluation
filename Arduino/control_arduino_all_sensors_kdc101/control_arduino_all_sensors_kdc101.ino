@@ -1,100 +1,61 @@
-// Rename to 5_reed_PD_inside
-
-//Constants
+// Constants
 int const REED_front_0 = A2;
 int const REED_front_1 = A3;
 int const REED_back_0 = A4;
 int const REED_back_1 = A5;
 int const REED_back_2 = A6;
 int const PD_inside = A10;
+int const PD_outside = A11;
 
-int const LED_REED_front_0 = 32;
-int const LED_REED_front_1 = 33;
-int const LED_REED_back_0 = 34;
-int const LED_REED_back_1 = 35;
-int const LED_REED_back_2 = 36;
-int const LED_LASER = 37;
-int const LED_PD_inside = 38;
-
+int const LED_red = 40;
 int const trig1 = 51;
 int const trig2 = 52;
 
-//Variables
+int freq = 200;
+
+// Variables
 int val_REED_front_0;
 int val_REED_front_1;
 int val_REED_back_0;
 int val_REED_back_1;
 int val_REED_back_2;
 int val_PD_inside;
+int val_PD_outside;
 
-byte trig1_state = LOW;
+// Inits
 byte trig2_state = LOW;
-
 unsigned long curr_ms = 0;
-unsigned long prev_ms_1 = 0;
 unsigned long prev_ms_2 = 0;
 
-int freq = 100;
-int wait_time = 1000;
-
 void setup(){
- Serial.begin(9600);
+  //Serial.setTimeout(2); //Milliseconds
+  Serial.begin(115200);   //9600, 19200, 115200
+  delay(500);
+
   pinMode(REED_front_0, INPUT);
   pinMode(REED_front_1, INPUT);
   pinMode(REED_back_0, INPUT);
   pinMode(REED_back_1, INPUT);
   pinMode(REED_back_2, INPUT);
   pinMode(PD_inside, INPUT);
+  pinMode(PD_outside, INPUT);
 
-  pinMode(LED_REED_front_0, OUTPUT);
-  pinMode(LED_REED_front_1, OUTPUT);
-  pinMode(LED_REED_back_0, OUTPUT);
-  pinMode(LED_REED_back_1, OUTPUT);
-  pinMode(LED_REED_back_2, OUTPUT);
-  pinMode(LED_LASER, OUTPUT);
-  pinMode(LED_PD_inside, OUTPUT);
-
-  pinMode(trig1, OUTPUT);
+  pinMode(LED_red, OUTPUT);
   pinMode(trig2, OUTPUT);
 
-
-
-  digitalWrite(trig2, LOW);
-  delay(wait_time);
-  digitalWrite(trig2, HIGH);
-  delay(freq/2);
+  digitalWrite(LED_red, HIGH);
 
 }
 void loop(){
-  
   curr_ms = millis();
-  //toggle_trig1();
   toggle_trig2();
   write_states();   
-
 }
 
 void write_states(){
-  //digitalWrite(trig1, trig1_state);
   digitalWrite(trig2, trig2_state);
 }
 
-void toggle_trig1(){
-  switch(trig1_state){
-    case LOW:
-      if (curr_ms - prev_ms_1 >= freq/2){       // switch high/low every 50ms   
-        // read and print once per clock cycle
-        trig1_state = HIGH;
-        prev_ms_1 = curr_ms;
-      }
-
-    case HIGH:
-      if (curr_ms - prev_ms_1 >= freq/2){   
-        trig1_state = LOW;
-        prev_ms_1 = curr_ms;
-      }
-  }
-}
 
 void toggle_trig2(){
   switch(trig2_state){
@@ -105,7 +66,6 @@ void toggle_trig2(){
         read_and_print_sensors();
         prev_ms_2 = curr_ms;
       }
-
     case HIGH:
       if (curr_ms - prev_ms_2>= freq/2){   
         trig2_state = LOW;
@@ -114,10 +74,6 @@ void toggle_trig2(){
   }
 }
 
-float volt(int sensorValue){
-  float voltage = sensorValue * (5.0/1023.0);
-  return voltage;
-}
 
 void read_and_print_sensors(){
   val_REED_front_0 = analogRead(REED_front_0);
@@ -126,6 +82,7 @@ void read_and_print_sensors(){
   val_REED_back_1 = analogRead(REED_back_1);
   val_REED_back_2 = analogRead(REED_back_2);
   val_PD_inside = analogRead(PD_inside);
+  val_PD_outside = analogRead(PD_outside);
 
   Serial.print(val_REED_front_0);
   Serial.print(",");
@@ -137,45 +94,8 @@ void read_and_print_sensors(){
   Serial.print(",");
   Serial.print(val_REED_back_2);
   Serial.print(",");
-  Serial.println(val_PD_inside);
+  Serial.print(val_PD_inside);  
+  Serial.print(",");
+  Serial.println(val_PD_outside);
 }
 
-
-
-void set_LEDs(){
-  if (val_PD_inside > 800){
-    digitalWrite(LED_PD_inside, HIGH);
-  }else{
-    digitalWrite(LED_PD_inside, LOW);
-  }
-
-  if (val_REED_front_0 < 80){
-    digitalWrite(LED_REED_front_0, LOW); 
-  }else{
-    digitalWrite(LED_REED_front_0, HIGH); 
-  }
-
-  if (val_REED_front_1 < 80){
-    digitalWrite(LED_REED_front_1, LOW); 
-  }else{
-    digitalWrite(LED_REED_front_1, HIGH);
-  }
-
-  if (val_REED_back_0 < 80){
-    digitalWrite(LED_REED_back_0, LOW);
-  }else{
-    digitalWrite(LED_REED_back_0, HIGH);
-  }
-
-  if (val_REED_back_1 < 80){
-    digitalWrite(LED_REED_back_1, LOW);
-  }else{
-    digitalWrite(LED_REED_back_1, HIGH);
-  }
-
-  if (val_REED_back_2 < 80){
-    digitalWrite(LED_REED_back_2, LOW);
-  }else{
-    digitalWrite(LED_REED_back_2, HIGH);
-  }
-}

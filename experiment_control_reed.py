@@ -51,14 +51,14 @@ def get_position_stage(direction):
 
 def ser_config():
     arduino_port = "COM3"
-    baud = 9600
+    baud = 115200
     ser = serial.Serial(arduino_port, baud)
     return ser
 
 def stage_config():
     scale_pos = 34554.97192
-    start_mm = 37.4*scale_pos
-    end_mm = 45.4*scale_pos
+    start_mm = 36*scale_pos
+    end_mm = 42*scale_pos               # 38.9 erste Berührung
     return scale_pos, start_mm, end_mm
 
 def get_serial():

@@ -13,15 +13,20 @@ int const LED_LASER = 44;
 int const trig = 52;
 
 // set frequency 
-int freq = 20;   // [ms]
+int freq = 10;   // [ms]
 
 // initialize buffer
 int const BUFFER_SIZE = 5;
-int circularBuffer[BUFFER_SIZE] = {0};
-int bufferIndex = 0;
+int const BUFFER_SIZE_DEV = 20;
 
+int circularBuffer[BUFFER_SIZE] = {0};
 int circularBuffer_avg[BUFFER_SIZE] = {0};
+int circularBuffer_dev[BUFFER_SIZE_DEV] = {0};
+
+int bufferIndex = 0;
 int bufferIndex_avg = 0;
+int bufferIndex_dev = 0;
+
 
 // Variables
 int val_REED_front_0;
@@ -52,7 +57,7 @@ void setup(){
   pinMode(LED_LASER, OUTPUT);
   pinMode(trig, OUTPUT);
 
-  digitalWrite(LED_red, HIGH);      
+  digitalWrite(LED_red, LOW);      
   digitalWrite(LED_LASER, HIGH);
 
 }
@@ -69,12 +74,13 @@ void updateBuffer(int newData) {
 }
 
 float computeMovingAverage() {
+    // compute moving average
     int sum = 0;
     for (int i = 0; i < BUFFER_SIZE; i++) {
         sum += circularBuffer[i];
     }
 
-// update average_buffer
+    // update average_buffer
     circularBuffer_avg[bufferIndex_avg] = (float)sum / BUFFER_SIZE;
     bufferIndex_avg = (bufferIndex_avg + 1) % BUFFER_SIZE;
 
@@ -84,7 +90,21 @@ float computeMovingAverage() {
 float computeDerivative() {
     // Compute the difference between consecutive data points
     int derivative = circularBuffer_avg[bufferIndex_avg] - circularBuffer_avg[(bufferIndex_avg - 1 + BUFFER_SIZE) % BUFFER_SIZE];
+
+    // update derivative buffer
+    circularBuffer_dev[bufferIndex_dev] = derivative;
+    bufferIndex_dev = (bufferIndex_dev + 1) % BUFFER_SIZE_DEV;
+
     return derivative;
+}
+
+bool allValuesInRange() {
+    for (int i = 0; i < BUFFER_SIZE_DEV; i++) {
+        if (circularBuffer_dev[i] < -2 || circularBuffer_dev[i] > 2) {
+            return false; // Return false as soon as a value is out of range
+        }
+    }
+    return true; // Return true if all values are within range
 }
 
 void toggle_trig(){
@@ -115,8 +135,12 @@ void read_and_print_sensors(){
   val_PD_outside = analogRead(PD_outside);
 
 // normale Reihenfolge: f0, f1, b0, b1, b2, pd, pd_average
+
   Serial.print(val_PD_inside);  
   Serial.print(",");
+
+  Serial.print(val_PD_outside);  
+  Serial.print(",");  
 
   updateBuffer(val_PD_inside);
   float movingAverage = computeMovingAverage();
@@ -125,8 +149,9 @@ void read_and_print_sensors(){
 
   float derivative = computeDerivative();
   Serial.print(derivative);
-  Serial.print(",");
+  
 
+/*
   Serial.print(val_REED_front_0);
   Serial.print(",");
   Serial.print(val_REED_front_1);
@@ -137,19 +162,30 @@ void read_and_print_sensors(){
   Serial.print(",");
   Serial.print(val_REED_back_2);
   Serial.print(",");
+*/
 
+/*
   // scaling serial plotter
   Serial.print(400);
   Serial.print(",");
   Serial.print(-10);
-  Serial.println(",");
+*/
+  Serial.println(" ");
 
 
-  if ((movingAverage < 80) && (derivative < 3)){
+
+  // Threshold control, derivative control for PD_inside
+  if (movingAverage < 80) {
+    if (allValuesInRange()) {
       digitalWrite(LED_LASER, HIGH);
+    } else {
+      digitalWrite(LED_LASER, LOW);
+    }  
   } else {
       digitalWrite(LED_LASER, LOW);
   }
+
+
 
 }
 

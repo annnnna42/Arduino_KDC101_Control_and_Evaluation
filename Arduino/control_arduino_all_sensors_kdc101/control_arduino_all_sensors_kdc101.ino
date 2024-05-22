@@ -14,21 +14,12 @@ int const LED_LASER_SAFE = 44;
 int const fPedal_Button = 46;
 int const trig = 52;
 
-// TODO: test boundaries
 // set frequency 
-//int freq = 0.1;   // [ms]
+int freq = 0.1;   // [ms]
 
 // initialize buffer
-//int const BUFFER_SIZE = 20;
-//int const BUFFER_SIZE_DEV = 50;
-
-// set frequency 
-int freq = 0.01;   // [ms]
-
-// initialize buffer
-int const BUFFER_SIZE = 50;
+int const BUFFER_SIZE = 20; // dieser Buffer kann aus IRGENDEINEM GRUND maximal size 32 haben
 int const BUFFER_SIZE_DEV = 100;
-
 
 int cBuffer_i[BUFFER_SIZE] = {0};
 int cBuffer_avg_i[BUFFER_SIZE] = {0};
@@ -40,7 +31,7 @@ int bIndex_dev_i = 0;
 
 int threshold_inside = 70;
 
-// Variables
+// Variables for sensors
 int val_REED_front_0;
 int val_REED_front_1;
 int val_REED_back_0;
@@ -49,6 +40,8 @@ int val_REED_back_2;
 int val_PD_inside;
 int val_PD_outside;
 int val_fPedal_Button;
+
+float val_PD_inside_volt;
 
 // Inits
 byte trig_state = LOW;
@@ -97,10 +90,11 @@ float computeMovingAverage(int* cBuffer, int* cBuffer_avg, int* bIndex_avg) {
     }
 
     // update average_buffer
-    cBuffer_avg[*bIndex_avg] = (float)sum / BUFFER_SIZE;
+    float avg = (float)sum/BUFFER_SIZE;
+    cBuffer_avg[*bIndex_avg] = avg;
     *bIndex_avg = (*bIndex_avg + 1) % BUFFER_SIZE;
 
-    return (float)sum / BUFFER_SIZE;
+    return avg;
 }
 
 float computeDerivative(int* cBuffer_dev, int* cBuffer_avg, int* bIndex_avg, int* bIndex_dev) {
@@ -109,7 +103,7 @@ float computeDerivative(int* cBuffer_dev, int* cBuffer_avg, int* bIndex_avg, int
 
     // update derivative buffer
     cBuffer_dev[*bIndex_dev] = derivative;
-    bIndex_dev = (*bIndex_dev + 1) % BUFFER_SIZE_DEV;
+    *bIndex_dev = (*bIndex_dev + 1) % BUFFER_SIZE_DEV;
 
     return derivative;
 }
@@ -141,6 +135,12 @@ void toggle_trig(){
   }
 }
 
+float in_volt(int value){
+
+  return value * (5.0/1023.0);
+
+}
+
 void read_and_print_sensors(){  
   val_REED_front_0 = digitalRead(REED_front_0) * 1023;
   val_REED_front_1 = digitalRead(REED_front_1)* 1023;  
@@ -152,6 +152,8 @@ void read_and_print_sensors(){
 
   val_PD_inside = analogRead(PD_inside);
   val_PD_outside = analogRead(PD_outside);
+
+  val_PD_inside_volt = in_volt(val_PD_inside);
 
 // normale Reihenfolge: f0, f1, b0, b1, b2, pd, pd_average
 
@@ -172,7 +174,6 @@ void read_and_print_sensors(){
   float derivative_i = computeDerivative(cBuffer_dev_i, cBuffer_avg_i, &bIndex_avg_i, &bIndex_dev_i);
   Serial.print(derivative_i);
   
-
 /*
   Serial.print(val_REED_front_0);
   Serial.print(",");
@@ -186,12 +187,6 @@ void read_and_print_sensors(){
   Serial.print(",");
 */
 
-/*
-  // scaling serial plotter
-  Serial.print(400);
-  Serial.print(",");
-  Serial.print(-10);
-*/
   Serial.println(" ");
 
 

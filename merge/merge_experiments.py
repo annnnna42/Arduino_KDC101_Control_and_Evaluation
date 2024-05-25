@@ -51,6 +51,11 @@ def get_data():
 
 with Thorlabs.KinesisMotor("27267730") as stage:
     scale_pos = 34554.97192
+    start_pos = 11.75
+    end_pos = 33.75
+
+    rounds = 30
+
     stage_setup(scale_pos)
     ser = ser_config() 
     trig1_state_after = False 
@@ -59,15 +64,17 @@ with Thorlabs.KinesisMotor("27267730") as stage:
 
     all_data = []
 
-    for i in range(2):
-        stage.move_to(10*scale_pos)
+    for i in range(rounds):
+        stage.move_to(start_pos*scale_pos)
         get_data() 
-        stage.move_to(0*scale_pos)
+        stage.move_to(end_pos*scale_pos)
         get_data()
+
+        print(i)
 
     # TODO adjust for more data
     # converts serial data from list to int  
-    all_data = [[row[0], int(row[1][0].strip())] for row in all_data]
+    
 
     print(all_data)
 

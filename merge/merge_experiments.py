@@ -6,6 +6,7 @@ import serial
 import sys
 
 arg = sys.argv[1]
+rounds = int(sys.argv[2])
 
 def return_trig1_state():
     status = stage.get_status()
@@ -26,7 +27,7 @@ def get_rising_edge_trig1():                        # get rising edge
 def stage_setup(scale_pos):
     acc = 4.5*scale_pos
     maxv = 2.4*scale_pos
-    stage.setup_kcube_trigio(trig1_mode='in_gpio', trig1_pol = False)
+    stage.setup_kcube_trigio(trig2_mode='in_gpio', trig2_pol = False)
     stage.setup_velocity(acceleration=acc, max_velocity=maxv)
 
 def ser_config():
@@ -39,22 +40,31 @@ def get_data():
     while stage.is_moving():
         if (get_rising_edge_trig1()):
             temp = []
-
             temp.append(stage.get_position()/scale_pos)
             getData=ser.readline().decode('utf-8')
             data=getData[0:][:-2]  
             temp.append(data.split(","))
             print(temp)
-
             all_data.append(temp)
+
+    t1 = time.time()
+    # wait for 2 seconds
+    while(time.time()-t1 <= 2):
+        if get_rising_edge_trig1():
+            temp = []
+            temp.append(stage.get_position()/scale_pos)
+            getData=ser.readline().decode('utf-8')
+            data=getData[0:][:-2]  
+            temp.append(data.split(","))
+            print(temp)
+            all_data.append(temp)
+
 
 
 with Thorlabs.KinesisMotor("27267730") as stage:
     scale_pos = 34554.97192
     start_pos = 11.75
-    end_pos = 33.75
-
-    rounds = 30
+    end_pos = 31.75
 
     stage_setup(scale_pos)
     ser = ser_config() 
@@ -67,6 +77,7 @@ with Thorlabs.KinesisMotor("27267730") as stage:
     for i in range(rounds):
         stage.move_to(start_pos*scale_pos)
         get_data() 
+
         stage.move_to(end_pos*scale_pos)
         get_data()
 

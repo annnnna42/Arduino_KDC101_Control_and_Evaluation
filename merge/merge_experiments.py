@@ -26,7 +26,7 @@ def get_rising_edge_trig1():                        # get rising edge
 
 def stage_setup(scale_pos):
     acc = 3*scale_pos
-    maxv = 1.5*scale_pos
+    maxv = 1.7*scale_pos
     stage.setup_kcube_trigio(trig2_mode='in_gpio', trig2_pol = False)
     stage.setup_velocity(acceleration=acc, max_velocity=maxv)
 
@@ -64,7 +64,7 @@ def get_data():
 with Thorlabs.KinesisMotor("27267730") as stage:
     scale_pos = 34554.97192
     start_pos = 0
-    end_pos = 34.5
+    end_pos = 48
 
     stage_setup(scale_pos)
     ser = ser_config() 

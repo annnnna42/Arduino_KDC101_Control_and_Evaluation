@@ -4,6 +4,7 @@ from datetime import datetime
 import time
 import serial
 import sys
+import matplotlib as plt
 
 arg = sys.argv[1]
 rounds = int(sys.argv[2])
@@ -36,35 +37,69 @@ def ser_config():
     ser = serial.Serial(arduino_port, baud)
     return ser
 
+
+
+
 def get_data():
+    buffer = ""
+    start_time = time.time()
     while stage.is_moving():
-        if (get_rising_edge_trig1()):
+    #while True:
+        if ser.in_waiting > 0:
             temp = []
             temp.append(stage.get_position()/scale_pos)
-            getData=ser.readline().decode('utf-8')
-            data=getData[0:][:-2]  
-            temp.append(data.split(","))
+            getData = ser.readline().decode('utf-8').strip()
+            temp.append(getData.split(","))
+            print(temp)
+            all_data.append(temp)
+ 
+        # if time.time() - start_time > 45:
+        #     break
+
+    t1 = time.time()
+    # wait for 5 seconds
+    while(time.time()-t1 <= 5):
+        if ser.in_waiting > 0:
+            temp = []
+            temp.append(stage.get_position()/scale_pos)
+            getData = ser.readline().decode('utf-8').strip()
+            temp.append(getData.split(","))
             print(temp)
             all_data.append(temp)
 
-    t1 = time.time()
-    # wait for 2 seconds
-    while(time.time()-t1 <= 2):
-        if get_rising_edge_trig1():
-            temp = []
-            temp.append(stage.get_position()/scale_pos)
-            getData=ser.readline().decode('utf-8')
-            data=getData[0:][:-2]  
-            temp.append(data.split(","))
-            print(temp)
-            all_data.append(temp)
+
+
+
+
+# def get_data():
+#     while stage.is_moving():
+#         if (get_rising_edge_trig1()):
+#             temp = []
+#             temp.append(stage.get_position()/scale_pos)
+#             getData=ser.readline().decode('utf-8')
+#             data=getData[0:][:-2]  
+#             temp.append(data.split(","))
+#             print(temp)
+#             all_data.append(temp)
+
+#     t1 = time.time()
+#     # wait for 2 seconds
+#     while(time.time()-t1 <= 2):
+#         if get_rising_edge_trig1():
+#             temp = []
+#             temp.append(stage.get_position()/scale_pos)
+#             getData=ser.readline().decode('utf-8')
+#             data=getData[0:][:-2]  
+#             temp.append(data.split(","))
+#             print(temp)
+#             all_data.append(temp)
 
 
 
 with Thorlabs.KinesisMotor("27267730") as stage:
     scale_pos = 34554.97192
     start_pos = 0
-    end_pos = 48
+    end_pos = 47
 
     stage_setup(scale_pos)
     ser = ser_config() 
@@ -74,6 +109,7 @@ with Thorlabs.KinesisMotor("27267730") as stage:
 
     all_data = []
 
+    # get_data()
     for i in range(rounds):
         stage.move_to(start_pos*scale_pos)
         get_data() 
@@ -93,4 +129,3 @@ with Thorlabs.KinesisMotor("27267730") as stage:
         f.write(str(all_data))
 
     stage.close()
-

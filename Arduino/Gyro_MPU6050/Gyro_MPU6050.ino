@@ -1,18 +1,16 @@
-
-
 #include <Wire.h>
 
 #define MPU6050_ADRESS 0x68
-int16_t accX, accY, accZ, gyrX, gyrY, gyrZ;
-//int16_t tVal;
-//double temperature = 0.0;
 
 int const NUM_STREAMS = 6;
 int const BUFFER_SIZE = 5;
 
-int SerialValue[NUM_STREAMS];  //accValue [accX, accY, accZ, gyrX, gyrY, gyrZ, vec_acc, vec_gyr]
-int movingAverage[NUM_STREAMS];
+long SerialValue[NUM_STREAMS];  //accValue [accX, accY, accZ, gyrX, gyrY, gyrZ]
+long movingAverage[NUM_STREAMS];
 int derivative[NUM_STREAMS];
+
+unsigned long vec_acc_curr = 0;
+unsigned long vec_acc_prev = 0;
 
 int temperature;
 int accCorr;
@@ -25,7 +23,7 @@ float gyroAngle[3], gyroCorr;
 
 
 // [accX, accY, accZ, gyrX, gyrY, gyrZ]
-int buffer[NUM_STREAMS][BUFFER_SIZE] = {0};
+long buffer[NUM_STREAMS][BUFFER_SIZE] = {0};
 long bufferAvgs[NUM_STREAMS][BUFFER_SIZE] = {0};
 int bufferDevs[NUM_STREAMS][BUFFER_SIZE] = {0};
 
@@ -73,6 +71,11 @@ float computeDerivative(int streamIndex){
   return derivative;
 }
 
+float computeDerivativeVec(long curr, long prev){
+  long derivative = curr - prev;
+  return derivative;
+}
+
 
 void loop() {
   Wire.beginTransmission(MPU6050_ADRESS);
@@ -91,26 +94,33 @@ void loop() {
 
 
   for (int i = 0; i < NUM_STREAMS; i++){
+    // 6*3+1 = 19 Werte
+    // [accX, ma_accX, dev_accX, accY, ... , dev_accZ, gyrX, ma_gyrX, dev_gyrX, gyrY, ... , dev_gyrZ, acc_vec]
     // Serial.print(SerialValue[i]);
     // Serial.print(", ");   
 
     updateBuffer(SerialValue[i], i);
 
     movingAverage[i] = computeMovingAverage(i);
+
     // Serial.print(movingAverage[i]);
     // Serial.print(", ");
 
     derivative[i] = computeDerivative(i);
-    Serial.print(derivative[i]);
-    Serial.print(", ");
+    // Serial.print(derivative[i]);
+    // Serial.print(", ");
+    
   }
 
-  // compute acceleration vector
-  SerialValue[6] = sqrt(SerialValue[0]^2 + SerialValue[1]^2 + SerialValue[2]^2);
+  vec_acc_curr =movingAverage[0]*movingAverage[0] + movingAverage[1]*movingAverage[1] + movingAverage[2]*movingAverage[2];
+  vec_acc_curr = sqrt(vec_acc_curr);
 
+  long dev_vec_acc = computeDerivativeVec(vec_acc_curr, vec_acc_prev);
 
+  vec_acc_prev = vec_acc_curr;
+
+  Serial.print(dev_vec_acc);
 
   Serial.println();
-  delay(50);
 }
 

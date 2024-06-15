@@ -15,11 +15,11 @@ int const fPedal_Button = 46;
 int const trig = 52;
 
 // set frequency 
-int freq = 0.1;   // [ms]
+int freq = 2.5; // [ms]   oder 25 oder 125
 
 // initialize buffer
-int const BUFFER_SIZE = 20; // dieser Buffer kann aus IRGENDEINEM GRUND maximal size 32 haben
-int const BUFFER_SIZE_DEV = 100;
+int const BUFFER_SIZE = 10; // dieser Buffer kann aus IRGENDEINEM GRUND maximal size 32 haben
+int const BUFFER_SIZE_DEV = 10;
 
 int cBuffer_i[BUFFER_SIZE] = {0};
 int cBuffer_avg_i[BUFFER_SIZE] = {0};
@@ -29,7 +29,7 @@ int bIndex_i = 0;
 int bIndex_avg_i = 0;
 int bIndex_dev_i = 0;
 
-int threshold_inside = 70;
+int threshold_inside = 50;
 
 // Variables for sensors
 int val_REED_front_0;
@@ -50,7 +50,7 @@ unsigned long prev_ms_2 = 0;
 
 void setup(){
   Serial.begin(115200);   //9600, 19200, 115200
-  delay(500);
+  delay(100);
 
   pinMode(REED_front_0, INPUT);
   pinMode(REED_front_1, INPUT);
@@ -65,7 +65,7 @@ void setup(){
   pinMode(LED_LASER_SAFE, OUTPUT);
   pinMode(trig, OUTPUT);
 
-  digitalWrite(LED_IR, LOW);      
+  digitalWrite(LED_IR, HIGH);      
   digitalWrite(LED_LASER, HIGH);
   digitalWrite(LED_LASER_SAFE, HIGH);
 
@@ -119,9 +119,12 @@ bool allValuesInRange(int* cBuffer_dev_i) {
 }
 
 void toggle_trig(){
+  // Serial.println(curr_ms-prev_ms_2);
+  // Serial.println(trig_state);
+
   switch(trig_state){
     case LOW:
-      if (curr_ms - prev_ms_2 >= freq/2){       // switch high/low every 50ms   
+      if (curr_ms - prev_ms_2 >= freq/2){       // switch high/low 
         // read and print once per clock cycle
         trig_state = HIGH;
         read_and_print_sensors();
@@ -133,6 +136,7 @@ void toggle_trig(){
         prev_ms_2 = curr_ms;
       }
   }
+
 }
 
 float in_volt(int value){
@@ -156,7 +160,9 @@ void read_and_print_sensors(){
   val_PD_inside_volt = in_volt(val_PD_inside);
 
 // normale Reihenfolge: f0, f1, b0, b1, b2, pd, pd_average
-
+  // Serial.print(trig_state);
+  // Serial.print("...");
+  
   // Serial.print(val_fPedal_Button);  
   // Serial.print(",");
 
@@ -173,6 +179,9 @@ void read_and_print_sensors(){
 
   float derivative_i = computeDerivative(cBuffer_dev_i, cBuffer_avg_i, &bIndex_avg_i, &bIndex_dev_i);
   Serial.print(derivative_i);
+  Serial.print(",");
+
+
   
 /*
   Serial.print(val_REED_front_0);
@@ -186,8 +195,7 @@ void read_and_print_sensors(){
   Serial.print(val_REED_back_2);
   Serial.print(",");
 */
-
-  Serial.println(" ");
+      digitalWrite(LED_LASER_SAFE, HIGH);
 
 
   // Threshold control for PD_inside and derivation control for PD_inside
@@ -195,7 +203,8 @@ void read_and_print_sensors(){
     
       // it is safe to use the laser
       digitalWrite(LED_LASER_SAFE, HIGH);
-
+      Serial.print(1);
+    
       // if foot pedal is active (button in this case)
       if (val_fPedal_Button == 1) {
         digitalWrite(LED_LASER, HIGH);
@@ -206,8 +215,12 @@ void read_and_print_sensors(){
   } else {
       digitalWrite(LED_LASER_SAFE, LOW);
       digitalWrite(LED_LASER, LOW);
+      Serial.print(0);
+
   }
 
+
+  Serial.println(" ");
 
 
 }

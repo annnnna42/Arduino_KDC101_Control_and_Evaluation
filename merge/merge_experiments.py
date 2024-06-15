@@ -38,13 +38,11 @@ def ser_config():
     return ser
 
 
-
-
 def get_data():
     buffer = ""
     start_time = time.time()
-    while stage.is_moving():
-    #while True:
+    #while stage.is_moving():
+    while True:
         if ser.in_waiting > 0:
             temp = []
             temp.append(stage.get_position()/scale_pos)
@@ -53,46 +51,19 @@ def get_data():
             print(temp)
             all_data.append(temp)
  
-        # if time.time() - start_time > 45:
-        #     break
+        if time.time() - start_time > 10:
+            break
 
-    t1 = time.time()
-    # wait for 5 seconds
-    while(time.time()-t1 <= 5):
-        if ser.in_waiting > 0:
-            temp = []
-            temp.append(stage.get_position()/scale_pos)
-            getData = ser.readline().decode('utf-8').strip()
-            temp.append(getData.split(","))
-            print(temp)
-            all_data.append(temp)
-
-
-
-
-
-# def get_data():
-#     while stage.is_moving():
-#         if (get_rising_edge_trig1()):
-#             temp = []
-#             temp.append(stage.get_position()/scale_pos)
-#             getData=ser.readline().decode('utf-8')
-#             data=getData[0:][:-2]  
-#             temp.append(data.split(","))
-#             print(temp)
-#             all_data.append(temp)
-
-#     t1 = time.time()
-#     # wait for 2 seconds
-#     while(time.time()-t1 <= 2):
-#         if get_rising_edge_trig1():
-#             temp = []
-#             temp.append(stage.get_position()/scale_pos)
-#             getData=ser.readline().decode('utf-8')
-#             data=getData[0:][:-2]  
-#             temp.append(data.split(","))
-#             print(temp)
-#             all_data.append(temp)
+    # t1 = time.time()
+    # # wait for 5 seconds
+    # while(time.time()-t1 <= 5):
+    #     if ser.in_waiting > 0:
+    #         temp = []
+    #         temp.append(stage.get_position()/scale_pos)
+    #         getData = ser.readline().decode('utf-8').strip()
+    #         temp.append(getData.split(","))
+    #         print(temp)
+    #         all_data.append(temp)
 
 
 
@@ -109,15 +80,16 @@ with Thorlabs.KinesisMotor("27267730") as stage:
 
     all_data = []
 
-    # get_data()
-    for i in range(rounds):
-        stage.move_to(start_pos*scale_pos)
-        get_data() 
+    get_data()
 
-        stage.move_to(end_pos*scale_pos)
-        get_data()
+    # for i in range(rounds):
+    #     stage.move_to(start_pos*scale_pos)
+    #     get_data() 
 
-        print(i)
+    #     stage.move_to(end_pos*scale_pos)
+    #     get_data()
+
+    #     print(i)
 
     # TODO adjust for more data
     # converts serial data from list to int  

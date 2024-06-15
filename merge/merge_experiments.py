@@ -41,8 +41,8 @@ def ser_config():
 def get_data():
     buffer = ""
     start_time = time.time()
-    #while stage.is_moving():
-    while True:
+    while stage.is_moving():
+   # while True:
         if ser.in_waiting > 0:
             temp = []
             temp.append(stage.get_position()/scale_pos)
@@ -51,26 +51,26 @@ def get_data():
             print(temp)
             all_data.append(temp)
  
-        if time.time() - start_time > 10:
-            break
+        # if time.time() - start_time > 10:
+        #     break
 
-    # t1 = time.time()
-    # # wait for 5 seconds
-    # while(time.time()-t1 <= 5):
-    #     if ser.in_waiting > 0:
-    #         temp = []
-    #         temp.append(stage.get_position()/scale_pos)
-    #         getData = ser.readline().decode('utf-8').strip()
-    #         temp.append(getData.split(","))
-    #         print(temp)
-    #         all_data.append(temp)
+    t1 = time.time()
+    # wait for 5 seconds
+    while(time.time()-t1 <= 5):
+        if ser.in_waiting > 0:
+            temp = []
+            temp.append(stage.get_position()/scale_pos)
+            getData = ser.readline().decode('utf-8').strip()
+            temp.append(getData.split(","))
+            print(temp)
+            all_data.append(temp)
 
 
 
 with Thorlabs.KinesisMotor("27267730") as stage:
     scale_pos = 34554.97192
     start_pos = 0
-    end_pos = 47
+    end_pos = 48
 
     stage_setup(scale_pos)
     ser = ser_config() 
@@ -80,16 +80,18 @@ with Thorlabs.KinesisMotor("27267730") as stage:
 
     all_data = []
 
-    get_data()
+    # get_data()
+    # stage.move_to(1*scale_pos)
+    # stage.move_to(0)
 
-    # for i in range(rounds):
-    #     stage.move_to(start_pos*scale_pos)
-    #     get_data() 
+    for i in range(rounds):
+        stage.move_to(end_pos*scale_pos)
+        get_data() 
 
-    #     stage.move_to(end_pos*scale_pos)
-    #     get_data()
+        stage.move_to(start_pos*scale_pos)
+        get_data()
 
-    #     print(i)
+        print(i)
 
     # TODO adjust for more data
     # converts serial data from list to int  

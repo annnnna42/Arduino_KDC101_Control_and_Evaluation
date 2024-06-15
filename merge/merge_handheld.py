@@ -35,7 +35,7 @@ def get_data():
             getData = ser.readline().decode('utf-8').strip()
             data = getData.split(",")
             print(data)
-            
+
             # Convert each element to float
             try:
                 data = [float(x) for x in data]
@@ -43,7 +43,7 @@ def get_data():
             except ValueError:
                 continue
 
-        if time.time() - start_time > 60:
+        if time.time() - start_time > 20:
             break
 
 ser = ser_config() 

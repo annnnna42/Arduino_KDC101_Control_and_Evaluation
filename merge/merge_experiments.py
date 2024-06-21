@@ -69,8 +69,8 @@ def get_data():
 
 with Thorlabs.KinesisMotor("27267730") as stage:
     scale_pos = 34554.97192
-    start_pos = 0
-    end_pos = 48
+    start_pos = 1.8
+    end_pos = 49.8
 
     stage_setup(scale_pos)
     ser = ser_config() 
@@ -81,8 +81,8 @@ with Thorlabs.KinesisMotor("27267730") as stage:
     all_data = []
 
     # get_data()
-    # stage.move_to(1*scale_pos)
-    # stage.move_to(0)
+
+    
 
     for i in range(rounds):
         stage.move_to(end_pos*scale_pos)

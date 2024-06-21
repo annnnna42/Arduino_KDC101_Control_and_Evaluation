@@ -95,7 +95,7 @@ with Thorlabs.KinesisMotor("27267730") as stage:
     print("Start")
 
 
-    for i in range(200):
+    for i in range(1):
         position_data = []
         serial_data = []
 

@@ -8,9 +8,18 @@ import sys
 # arg1 = sys.argv[1]
 # arg2 = sys.argv[2]
 
+def return_trig1_state():
+    status = stage.get_status()
+    #print(status)
+    trig1_state = "digio1" in status
+    print(trig1_state)
+    return trig1_state
+
 def return_trig2_state():
     status = stage.get_status()
+    print(status)
     trig2_state = "digio2" in status
+    print(trig2_state)
     return trig2_state
             
 # connect to the devices
@@ -20,26 +29,25 @@ with Thorlabs.KinesisMotor("27267730") as stage:
     maxv = 2.4*scale_pos
     trigger_positions = []
 
-   # stage.setup_kcube_trigio(trig1_mode = 'in_gpio', trig1_pol=True, trig2_mode='in_gpio', trig2_pol=True)
-    stage.setup_kcube_trigio(trig2_mode='in_gpio', trig2_pol = True)
-    #minv, acc, maxv = stage.get_velocity_parameters()
-    #print(acc/scale_pos)
-    #print(maxv/scale_pos)
+    #stage.setup_kcube_trigio(trig1_mode = 'in_gpio', trig1_pol=True, trig2_mode='in_gpio', trig2_pol=False)
+    stage.setup_kcube_trigio(trig1_mode='in_gpio', trig1_pol = False)
+
     stage.setup_velocity(acceleration=acc, max_velocity=maxv)
     print(stage.get_velocity_parameters())
-    #print(accn/scale_pos)
-    #print(maxvn/scale_pos)
 
-    stage.move_to(20*scale_pos)
-    stage.wait_move()  
+    # stage.move_to(20*scale_pos)
+    # stage.wait_move()  
 
-    stage.move_to(0*scale_pos)
-    stage.wait_move()    #while True:
-       #print(return_trig2_state())
+    # stage.move_to(0*scale_pos)
+    #  stage.wait_move()    
+    #while stage.is_moving():
+    while True:
+        return_trig1_state()
+        #return_trig2_state()
     #    stage.send_comm(0x0213, 0xFF)
     #    time.sleep(1)
     #    stage.send_comm(0x0213, 0x00)
-    #    time.sleep(1)
+        time.sleep(0.05)
     print("End")
     stage.close()
 ############################################

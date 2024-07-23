@@ -6,8 +6,9 @@ import serial
 import sys
 import matplotlib as plt
 
-arg = sys.argv[1]
-duration = int(sys.argv[2])
+duration = int(sys.argv[1])
+arg = sys.argv[2]
+
 
 def ser_config():
     arduino_port = "COM3"

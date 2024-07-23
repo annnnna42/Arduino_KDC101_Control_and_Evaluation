@@ -7,6 +7,7 @@ import sys
 import matplotlib as plt
 
 arg = sys.argv[1]
+duration = int(sys.argv[2])
 
 def ser_config():
     arduino_port = "COM3"
@@ -18,17 +19,6 @@ def ser_config():
 def get_data():
     buffer = ""
     start_time = time.time()
-    #while stage.is_moving():
-    # while True:
-    #     if ser.in_waiting > 0:
-    #         temp = []
-    #         getData = ser.readline().decode('utf-8').strip()
-    #         temp.append(getData.split(","))
-    #         print(temp)
-    #         all_data.append(temp)
- 
-    #     if time.time() - start_time > 60:
-    #         break
 
     while True:
         if ser.in_waiting > 0:
@@ -43,7 +33,7 @@ def get_data():
             except ValueError:
                 continue
 
-        if time.time() - start_time > 20:
+        if time.time() - start_time > duration:
             break
 
 ser = ser_config() 

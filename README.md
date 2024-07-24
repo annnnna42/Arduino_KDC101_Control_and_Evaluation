@@ -16,4 +16,6 @@ This repository contains the code for the Laser Safety Mechanism implemented int
      where ```duration``` is the time of data acquisition in seconds. 
 3) Data analysis with Jupyter notebooks 
    - _merge/merge_plots_all.ipynb_ the first two blocks analyse the hand held data from the accelerometer, phototransistor and reed switches. The third code block analyses the stage data from the integrated probe (reed switches and phototransistor)
-   - _merge/merge_compare_thresh.ipynb_ compared different threshold and derivative values for one data set of phototransistor data 
+   - _merge/merge_compare_thresh.ipynb_ compared different threshold and derivative values for one data set of phototransistor data
+
+4) _Arduino/Individual Sensors_ compromises the Arduino scripts that were used to test different sensors in the seletion phase. All scripts run on an Arduino Mega 2560. The Arduino might be interchangeable, but others have not been tested. 
